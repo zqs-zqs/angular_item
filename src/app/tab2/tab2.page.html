@@ -1,17 +1,56 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>
-      Tab 2
-    </ion-title>
+    <ion-searchbar placeholder="商品名"></ion-searchbar>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 2</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content *ngIf="res">
+  <ion-refresher
+    slot="fixed"
+    (ionRefresh)="doRefresh($event)"
+    pullFactor="0.8"
+    pullMin="60"
+    pullMax="120"
+  >
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
-  <app-explore-container name="Tab 2 page"></app-explore-container>
+  <ion-card>
+    <ion-item
+      button
+      detail
+      *ngFor="let item of res.data"
+      [routerLink]="['/detail', {lid: item.lid}]"
+    >
+      <img
+        src="http://101.96.128.94:9999/{{item.pic}}"
+        alt=""
+        style="width: 5rem; height: 5rem"
+      />
+      <ion-label>
+        <h2>{{item.title}}</h2>
+        <p style="color: red; font-size: 1.1em; margin-top: 6px">
+          ¥{{item.price}}
+        </p>
+      </ion-label>
+    </ion-item>
+  </ion-card>
+
+  <!-- 加载更多:  数据充满一页 才能出现触底操作 -->
+  <ion-infinite-scroll
+    threshold="10%"
+    [disabled]="res.pno == res.pageCount"
+    position="bottom"
+    (ionInfinite)="loadData($event)"
+  >
+    <ion-infinite-scroll-content
+      loadingSpinner="bubbles"
+      loadingText="加载中..."
+    >
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
+  <ion-button *ngIf="res.pno == res.pageCount" disabled expand="full">
+    没有更多数据
+  </ion-button>
 </ion-content>
